@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
 dotenv.config();
 import Product from "./models/product.model.js";
+import mongoose from "mongoose";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -48,6 +49,35 @@ app.post("/api/products", async (req, res) => {
   } catch (error) {
     console.error("Error Create product:", error.message);
     res.status(500).json({ success: false, message: "Server Error" });
+  }
+});
+
+// Update a Product by id
+app.put("/api/products/:id", async (req, res) => {
+  const { id } = req.params;
+  const product = await req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    console.log("Invalid Product id!");
+    return res
+      .status(404)
+      .json({ success: false, message: "Invalid Product id!" });
+  }
+
+  try {
+    const updatedProduct = await Product.findByIdAndUpdate(id, product, {
+      new: true,
+    });
+    res.status(201).json({
+      success: true,
+      message: `Product with id: ${id} is Uptaed Successfully`,
+      data: updatedProduct,
+    });
+  } catch (error) {
+    console.error("Error Updating product:", error.message);
+    res
+      .status(500)
+      .json({ success: false, message: "Error Updating the product!" });
   }
 });
 
