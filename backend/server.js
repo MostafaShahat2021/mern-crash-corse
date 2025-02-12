@@ -10,6 +10,24 @@ const port = process.env.PORT || 3000;
 //middlewares
 app.use(express.json()); // to access json data in req.body
 
+// Get All Products
+app.get("/api/products", async (req, res) => {
+  try {
+    const products = await Product.find({});
+    // console.log(products);
+    res.status(200).json({
+      success: true,
+      message: "Fetch All Products Successfully",
+      data: products,
+    });
+  } catch (error) {
+    console.error("Error Fetching products:", error.message);
+    res
+      .status(500)
+      .json({ success: false, message: "Error Fetching Products!" });
+  }
+});
+
 // Create Product
 app.post("/api/products", async (req, res) => {
   const product = await req.body;
@@ -22,31 +40,30 @@ app.post("/api/products", async (req, res) => {
   const newProduct = new Product(product);
   try {
     await newProduct.save();
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "Product Created Successfully",
-        data: newProduct,
-      });
+    res.status(201).json({
+      success: true,
+      message: "Product Created Successfully",
+      data: newProduct,
+    });
   } catch (error) {
     console.error("Error Create product:", error.message);
     res.status(500).json({ success: false, message: "Server Error" });
   }
 });
 
-// delete product
+// Delete Product By id
 app.delete("/api/products/:id", async (req, res) => {
   const { id } = req.params;
   // console.log(id);
   try {
     await Product.findByIdAndDelete(id);
-    res
-      .status(200)
-      .json({ success: true, message: `Product with id: ${id} is Deleted Successfully` });
+    res.status(200).json({
+      success: true,
+      message: `Product with id: ${id} is Deleted Successfully`,
+    });
   } catch (error) {
     console.error("Error deleting product:", error.message);
-    res.status(404).json({ success: false, message: "Product Not Found" });
+    res.status(404).json({ success: false, message: "Product Not Found!" });
   }
 });
 
